@@ -1,0 +1,40 @@
+Q:How to pull mysql 8 image from docker registry?
+A:docker pull mysql:8
+
+Q:What version of docker, does this image build?
+A:docker image inspect mysql:8 | jq -r ".[].DockerVersion"
+
+Q:What ports does it expose?
+A:docker image inspect mysql:8 | jq -r ".[].ContainerConfig.ExposedPorts"
+
+Q:What volumes it needs?
+A:docker image inspect mysql:8 | jq -r ".[].Config.Volumes"
+---------------------------------------------------------------------------
+Q:How to get nginx:latest from docker registry?
+A:docker pull nginx:latest
+
+Q:How to save nginx:latest to file?
+A:docker image save -o nginx.tar nginx:latest
+
+Q:How to load docker image from an archive?
+A:docker image load -i nginx.tar
+
+Q:How to import docker image from an archive?
+A:docker image import nginx.tar nginx:mynginx
+-----------------------------------------------------------------------------------------------
+Q:Create a container from nginx and publish its exposed port
+A:docker run -itd --rm --name mynginx -p 8081:80 nginx:latest
+-----------------------------------------------------------------------------------------------
+Q:How many procceses does mynginx container have?
+A:docker container top mynginx
+-----------------------------------------------------------------------------------------------
+Q:what is the use of docker-proxy?
+A:When a container starts with its port forwarded to the Docker host on which it runs, in addition to the new process that runs inside the container, you may have noticed an additional process on the Docker host called docker-proxy:
+root       19026    1537  0 22:55 ?        00:00:00 /usr/bin/docker-proxy -proto tcp -host-ip :: -host-port 8081 -container-ip 172.17.0.2 -container-port 80
+-----------------------------------------------------------------------------------------------
+Q:What is dangling image?
+A:The image that has repository, and has <none> tag.We called them orphan.
+
+Q:How to remove dangling images?
+A:At first ensure you have no running container from that image then use:
+  docker image prune
