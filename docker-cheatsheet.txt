@@ -27,14 +27,54 @@ A:docker run -itd --rm --name mynginx -p 8081:80 nginx:latest
 -----------------------------------------------------------------------------------------------
 Q:How many procceses does mynginx container have?
 A:docker container top mynginx
------------------------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------------------------------------------------------------------------
 Q:what is the use of docker-proxy?
 A:When a container starts with its port forwarded to the Docker host on which it runs, in addition to the new process that runs inside the container, you may have noticed an additional process on the Docker host called docker-proxy:
 root       19026    1537  0 22:55 ?        00:00:00 /usr/bin/docker-proxy -proto tcp -host-ip :: -host-port 8081 -container-ip 172.17.0.2 -container-port 80
------------------------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------------------------------------------------------------------------
 Q:What is dangling image?
 A:The image that has repository, and has <none> tag.We called them orphan.
 
 Q:How to remove dangling images?
 A:At first ensure you have no running container from that image then use:
   docker image prune
+----------------------------------------------------------------------------------------------------------------------
+Q:Which signal will send to a running container, when the container killed?
+A: SIGKILL
+----------------------------------------------------------------------------------------------------------------------
+Q:Create a container from alpine:latest image,then install nginx on it.Finally create an image from the new container:
+A: The solution has three steps:
+  - step one(on host machine):
+    - $docker pull alpine
+    - docker run -itd --name myalpine alpine:latest
+    - docker exec -it myalpine /bin/sh
+  - step two(on myalpine container):
+    - / # apk add nginx
+    - / # nginx -v
+  - step three(on the host machine):
+    - docker commit myalpine
+    - docker tag <CONTAINER_ID> nginx-in-alpine:latest
+----------------------------------------------------------------------------------------------------------------------
+Q: What happened to processes of a container when it pauses?
+A: All the processes whithin that container will pause.
+----------------------------------------------------------------------------------------------------------------------
+Q: Run a container from redis:latest image and send it's id to myredis.cid file:
+A: 
+  - $docker run -idt --rm --name myredis redis:latest
+  - $docker inspect myredis | jq -r ".[].Id" > myredis.cid
+----------------------------------------------------------------------------------------------------------------------
+Q: Run a container from nginx image with memory=512M, memory-sawp=1024m,cpu=1.5 and cpu=”0,2”:
+A: docker run -idt --memory="512m" --memory-swap="1024m" --cpus="1.5" --cpuset-cpus="0,2"  --name mynginx nginx
+----------------------------------------------------------------------------------------------------------------------
+Q: How to create a container from alpine image and setting environments CLASS=dws and NAME=saeedyasrebi. 
+   Also show you are done well with env command in proper container:
+A:
+  - $docker run -itd --env CLASS=dws --env NAME=saeedyasrebi --name myalpine alpine
+  - $docker exec -it myalpine /bin/sh
+  - On container's shell run "env" command
+------------------------------------------------------------------------------------------------------------------------------------------------------
+Q: Create a container from alpine and mount a directory from your host into your container on /data, then change your current directory to that path:
+A:
+  - $docker run -itd -v ./test:/data -w /data --name myalpine alpine
+  - $docker exec -it myalpine /bin/sh
+------------------------------------------------------------------------------------------------------------------------------------------------------
